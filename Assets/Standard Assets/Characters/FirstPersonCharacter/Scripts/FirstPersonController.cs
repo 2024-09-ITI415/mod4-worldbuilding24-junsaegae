@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 using UnityStandardAssets.Utility;
 using Random = UnityEngine.Random;
+using TMPro;
 
 namespace UnityStandardAssets.Characters.FirstPerson
 {
@@ -28,6 +29,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         [SerializeField] private AudioClip m_JumpSound;           // the sound played when character leaves the ground.
         [SerializeField] private AudioClip m_LandSound;           // the sound played when character touches back on ground.
 
+        [SerializeField] private TextMeshProUGUI scoreText;
         private Camera m_Camera;
         private bool m_Jump;
         private float m_YRotation;
@@ -41,10 +43,13 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private float m_NextStep;
         private bool m_Jumping;
         private AudioSource m_AudioSource;
+        private int points;
 
         // Use this for initialization
         private void Start()
         {
+            points = 0;
+            UpdateScoreText();
             m_CharacterController = GetComponent<CharacterController>();
             m_Camera = Camera.main;
             m_OriginalCameraPosition = m_Camera.transform.localPosition;
@@ -82,7 +87,6 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
             m_PreviouslyGrounded = m_CharacterController.isGrounded;
         }
-
 
         private void PlayLandingSound()
         {
@@ -133,7 +137,22 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_MouseLook.UpdateCursorLock();
         }
 
+        private void OnTriggerEnter(Collider other) {
+            if(other.gameObject.CompareTag("Coin"))
+            {
+                points++;
+                UpdateScoreText();
+                Destroy(other.gameObject);
+            }
+        }
 
+        private void UpdateScoreText()
+        {
+            if (scoreText != null)
+            {
+                scoreText.text = "Score: " + points.ToString();
+            }
+        }
         private void PlayJumpSound()
         {
             m_AudioSource.clip = m_JumpSound;
